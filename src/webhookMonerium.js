@@ -69,3 +69,18 @@ app.post("/api/onramp/notification", async (req, res) => {
   );
   res.json({ success: true });
 });
+
+// Nuovo endpoint dedicato al monitoraggio dello stato dell'Algo Desk
+app.post("/api/algo/status", async (req, res) => {
+  const { bot, active, user } = req.body;
+  const statusEmoji = active ? "🟢 ATTIVATO · OPERATIVO 24/7" : "🔴 SPEGNIMENTO IN CORSO · STANDBY";
+  
+  await sendTelegramAlert(
+    `🤖 *AGGIORNAMENTO ALGO DESK ENTERPRISE*\n\n` +
+    `🤖 *Modulo Bot:* \`\${bot}\`\n` +
+    `👤 *Operatore:* \`\${user}\`\n` +
+    `📊 *Stato Sistema:* *\${statusEmoji}*\n` +
+    `🔒 *Commissioni Rete:* Sponsorizzazione d'Impresa attiva (Gas €0.00)`
+  );
+  res.json({ success: true });
+});
