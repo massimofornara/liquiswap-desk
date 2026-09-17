@@ -12,59 +12,39 @@ const TELEGRAM_BOT_TOKEN = "8804871661:AAFP2cWi2tyxfr-mOBcxejj8qcaq0dKpNVg";
 const TELEGRAM_CHAT_ID = "5590994774";
 
 const client = createThirdwebClient({ secretKey: SECRET_KEY });
-const PRIVATE_KEY_PEM = fs.readFileSync(path.resolve(import.meta.dirname, '../private.pem'), 'utf8');
 
 async function sendTelegramAlert(message) {
   try {
-    // Spezziamo l'URL in blocchi separati per impedire a Git Bash Windows di alterare la stringa
     const p1 = "ht" + "tps:/";
     const p2 = "/ap" + "i.teleg" + "ram.or" + "g/bo" + "t";
     const url = p1 + p2 + TELEGRAM_BOT_TOKEN + "/sendMessage";
     
-    const response = await axios.post(url, {
+    await axios.post(url, {
       chat_id: TELEGRAM_CHAT_ID,
       text: message,
       parse_mode: "Markdown"
     });
-    if (response.data.ok) {
-      console.log("[🎉 Telegram Success] Messaggio recapitato sul telefono di Massimo!");
-    }
+    console.log("[📱 Telegram] Notifica inviata con successo.");
   } catch (error) {
-    console.error("[-] Errore invio notifica Telegram:", error.response?.data || error.message);
+    console.error("[-] Errore Telegram:", error.message);
   }
 }
 
-const decryptIbanOnBackend = (encryptedText) => {
-    try {
-        return Buffer.from(encryptedText, 'base64').toString('utf8');
-    } catch (e) {
-        return null;
-    }
-};
-
 async function startListener() {
   console.log("[+] Avvio del listener in corso...");
-  
-  // Innesco immediato del messaggio di test pulito
-  await sendTelegramAlert("🚀 *LiquiSwap Desk Attivo!*\nIl backend è in esecuzione su Base Mainnet. Pronto a ricevere transazioni crittografate.");
+  await sendTelegramAlert("🚀 *LiquiSwap Desk Attivo!*\nIl backend è in esecuzione 24/7 su PM2. Pronto a ricevere transazioni istantanee.");
 
-  if (DEPLOYED_CONTRACT_ADDRESS === "0x0000000000000000000000000000000000000000") {
-    console.log("[i] Monitoraggio locale attivo. Imposta l'indirizzo del contratto nel file .env quando lo pubblicherai.");
-    return;
-  }
+  if (DEPLOYED_CONTRACT_ADDRESS === "0x0000000000000000000000000000000000000000") return;
 
   const contract = getContract({ client, chain: base, address: DEPLOYED_CONTRACT_ADDRESS });
-  console.log(`[+] Webhook in ascolto eventi...`);
-
   watchContractEvents({
     contract,
-    events: ["event OffRampTriggered(address indexed user, address indexed tokenPaid, uint256 amountIn, string targetIBAN, string accountHolderName)"],
+    events: ["event SwapExecuted(address indexed buyer, address indexed tokenAddress, uint256 amountBought, uint256 totalCost)"],
     onEvents: async (events) => {
       for (const event of events) {
-        const { user, amountIn, targetIBAN } = event.args;
-        const amountInEur = (Number(amountIn) / 10**6).toFixed(2);
-        
-        await sendTelegramAlert(`🚨 *Nuova Richiesta Off-Ramp!*\n👤 Utente: \`${user}\`\n💵 Importo: \${amountInEur} USDC\n🔒 IBAN (Cifrato): \`${targetIBAN}\``);
+        const { buyer, amountBought } = event.args;
+        const tokens = (Number(amountBought) / 10**18).toFixed(2);
+        await sendTelegramAlert(`⚡ *Accredito Istantaneo Completato!*\n👤 Ricevente: \`\${buyer}\`\n💰 Liquidati: *${tokens} Asset*`);
       }
     },
   });
