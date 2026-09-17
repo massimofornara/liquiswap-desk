@@ -4,5 +4,10 @@
     { "handle": "filesystem" },
     { "src": "/[^.]+", "dest": "/index.html" }
   ],
-  "cleanUrls": true
+  "cleanUrls": true,
+  "build": {
+    "env": {
+      "NPM_CONFIG_LEGACY_PEER_DEPS": "true"
+    }
+  }
 }
