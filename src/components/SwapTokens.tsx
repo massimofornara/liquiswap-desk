@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { createThirdwebClient, getContract, prepareContractCall, sendTransaction } from "thirdweb";
 import { base } from "thirdweb/chains";
-import { smartWallet, useActiveAccount, useConnect } from "thirdweb/wallets";
+import { smartWallet } from "thirdweb/wallets";
+import { useActiveAccount, useConnect } from "thirdweb/react";
 
 const client = createThirdwebClient({
   clientId: import.meta.env.VITE_THIRDWEB_CLIENT_ID || "IL_TUO_THIRDWEB_CLIENT_ID_PUBBLICO"
