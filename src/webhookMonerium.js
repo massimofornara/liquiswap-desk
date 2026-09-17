@@ -54,3 +54,18 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`[+] Backend LiquiSwap Enterprise attivo sulla porta ${PORT}`);
 });
+
+// Nuovo endpoint dedicato alle notifiche istantanee del canale On-Ramp
+app.post("/api/onramp/notification", async (req, res) => {
+  const { user, fiatPaid, tokenReceived, amountTokens, txHash } = req.body;
+  
+  await sendTelegramAlert(
+    `💳 *ON-RAMP FIAT EVASO NEI CIRCUITI!*\n\n` +
+    `👤 *Destinatario:* \`\${user}\`\n` +
+    `💶 *Importo Pagato:* € \${fiatPaid}\n` +
+    `🪙 *Crypto Ricevuta:* \${amountTokens} \${tokenReceived}\n` +
+    `⛓️ *Tx Registro:* [Apri BaseScan](https://basescan.org\${txHash})\n` +
+    `🔒 *Spesa Gas:* Sponsorizzato € 0.00`
+  );
+  res.json({ success: true });
+});
