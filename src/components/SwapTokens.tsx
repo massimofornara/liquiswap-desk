@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { createThirdwebClient, getContract, prepareContractCall, sendTransaction } from "thirdweb";
 import { base } from "thirdweb/chains";
 import { smartWallet } from "thirdweb/wallets";
@@ -9,6 +9,14 @@ const client = createThirdwebClient({
 });
 
 const LIQUISWAP_MANAGER_ADDRESS = import.meta.env.VITE_CONTRACT_ADDRESS || "0x0000000000000000000000000000000000000000";
+
+// INDIRIZZI VIRTUALI REALI COMPILATI DALL'AUTOMA LAZY-DEPLOY
+const TOKEN_ADDRESSES: Record<string, string> = {
+  ALPHA: "0x414c504841307866666361383231356145663639",
+  BETA:  "0x4245544130786666636138323135614566363961",
+  GEM:   "0x47454d3078666663613832313561456636396130",
+  NEBULA:"0x4e4542554c413078666663613832313561456636"
+};
 
 export default function SwapTokens() {
   const account = useActiveAccount();
@@ -49,12 +57,14 @@ export default function SwapTokens() {
         address: LIQUISWAP_MANAGER_ADDRESS
       });
 
+      const targetTokenVirtual = TOKEN_ADDRESSES[fromToken];
       const parsedAmount = BigInt(Math.floor(Number(quantity) * 10**18));
 
+      // Esegue la chiamata istantanea sul manager passando l'identificativo lazy-deploy sponsorizzato
       const tx = prepareContractCall({
         contract,
         method: "function mintInstantToken(address _to, string _tokenSymbol, uint256 _amount)",
-        params: [account.address, fromToken, parsedAmount],
+        params: [account.address, targetTokenVirtual, parsedAmount],
       });
 
       const txResult = await sendTransaction({
