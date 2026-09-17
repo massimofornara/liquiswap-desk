@@ -1,6 +1,5 @@
 {
   "version": 2,
-  "extends": null,
   "routes": [
     { "handle": "filesystem" },
     { "src": "/[^.]+", "dest": "/index.html" }
