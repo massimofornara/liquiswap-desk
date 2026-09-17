@@ -1,66 +1,35 @@
-import React, { useState } from 'react';
-import { TopBar } from './components/TopBar';
-import { Sidebar } from './components/Sidebar';
-import { SwapTokens } from './components/SwapTokens';
-import { Dashboard } from './components/Dashboard';
-import { BuyCrypto } from './components/BuyCrypto';
-import { SellCrypto } from './components/SellCrypto';
-import { ActiveTab } from './types';
+import React, { useState } from "react";
+import Sidebar from "./components/Sidebar";
+import SwapTokens from "./components/SwapTokens";
+import Trading from "./components/Trading";
+import OffRampConto from "./components/OffRampConto";
+import FinanceRamp from "./components/FinanceRamp";
 
-export const App: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<ActiveTab>('swap');
-  const [walletConnected, setWalletConnected] = useState(false);
-  const [walletAddress, setWalletAddress] = useState<string | null>(null);
-
-  const toggleWalletConnection = async () => {
-    if (walletConnected) {
-      setWalletConnected(false);
-      setWalletAddress(null);
-      return;
-    }
-
-    if (typeof window !== 'undefined' && (window as any).ethereum) {
-      try {
-        const accounts = await (window as any).ethereum.request({
-          method: 'eth_requestAccounts'
-        });
-        if (accounts && accounts[0]) {
-          setWalletAddress(accounts[0]);
-          setWalletConnected(true);
-          return;
-        }
-      } catch (err) {
-        console.warn('Richiesta provider respinta, uso fallback demo', err);
-      }
-    }
-
-    setWalletAddress('0x71C8360537ab1e3892782e448b6ef4926');
-    setWalletConnected(true);
-  };
+export default function App() {
+  const [activeTab, setActiveTab] = useState<string>("dashboard");
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-indigo-500 selection:text-white">
-      <TopBar
-        walletConnected={walletConnected}
-        walletAddress={walletAddress}
-        onToggleConnect={toggleWalletConnection}
-      />
-      <div className="flex flex-1 relative overflow-hidden">
-        <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
-        <main className="flex-1 p-4 md:p-10 flex items-center justify-center overflow-y-auto">
-          {activeTab === 'swap' && (
-            <SwapTokens
-              walletConnected={walletConnected}
-              onConnectWallet={toggleWalletConnection}
-            />
-          )}
-          {activeTab === 'dashboard' && <Dashboard />}
-          {activeTab === 'buy' && <BuyCrypto />}
-          {activeTab === 'sell' && <SellCrypto />}
-        </main>
+    <div style={{ display: "flex", background: "#0d1117", minHeight: "100vh", color: "#c9d1d9" }}>
+      {/* Menu laterale sinistro */}
+      <Sidebar currentTab={activeTab} setActiveTab={setActiveTab} />
+
+      {/* Area dei contenuti dinamici */}
+      <div style={{ flex: 1, padding: "40px", boxSizing: "border-box", overflowY: "auto" }}>
+        {activeTab === "dashboard" && (
+          <div style={{ maxWidth: "800px", margin: "0 auto", background: "#161b22", padding: "30px", borderRadius: "12px", border: "1px solid #21262d" }}>
+            <h2 style={{ marginTop: 0, color: "#fff" }}>Benvenuto nel tuo Creator Desk Enterprise</h2>
+            <p style={{ color: "#8b949e", lineHeight: "1.6" }}>
+              Seleziona una voce dal menu laterale per gestire gli swap istantanei senza gas on-chain,
+              emettere asset illiquidi o processare prelievi con cifratura asimmetrica end-to-end.
+            </p>
+          </div>
+        )}
+
+        {activeTab === "swap" && <SwapTokens />}
+        {activeTab === "trading" && <Trading />}
+        {activeTab === "offramp-conto" && <OffRampConto />}
+        {activeTab === "finance-ramp" && <FinanceRamp />}
       </div>
     </div>
   );
-};
-
-export default App;
+}

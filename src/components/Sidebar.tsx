@@ -1,51 +1,67 @@
-import React from 'react';
-import { ActiveTab } from '../types';
-import { ArrowLeftRight, LayoutDashboard, CreditCard, DollarSign, Layers } from 'lucide-react';
+import React from "react";
 
 interface SidebarProps {
-  activeTab: ActiveTab;
-  setActiveTab: (tab: ActiveTab) => void;
+  currentTab: string;
+  setActiveTab: (tab: string) => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
-  const navItems = [
-    { id: 'swap' as ActiveTab, label: 'Instant Swap', icon: ArrowLeftRight },
-    { id: 'dashboard' as ActiveTab, label: 'Portfolio DEX', icon: LayoutDashboard },
-    { id: 'buy' as ActiveTab, label: 'Compra Crypto', icon: CreditCard },
-    { id: 'sell' as ActiveTab, label: 'Vendi Crypto', icon: DollarSign }
+export default function Sidebar({ currentTab, setActiveTab }: SidebarProps) {
+  // Struttura delle schede ereditata dalla documentazione del Desk Enterprise
+  const menuItems = [
+    { id: "dashboard", label: "📊 Panoramica Desk", icon: "💎" },
+    { id: "swap", label: "🔄 Swap → Wallet", icon: "⚡" },
+    { id: "trading", label: "📈 Mercati Trading", icon: "📊" },
+    { id: "offramp-conto", label: "🏦 Off-Ramp Conto", icon: "🔒" },
+    { id: "finance-ramp", label: "💳 Gateway Fiat", icon: "💶" }
   ];
 
   return (
-    <aside className="w-64 border-r border-slate-800/80 bg-dex-950/60 p-4 hidden md:flex flex-col justify-between shrink-0">
-      <nav className="space-y-1.5">
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = activeTab === item.id;
+    <div style={{ width: "260px", background: "#0b0e14", borderRight: "1px solid #21262d", height: "100vh", padding: "20px", boxSizing: "border-box", display: "flex", flexDirection: "column" }}>
+      <div style={{ paddingBottom: "20px", borderBottom: "1px solid #21262d", marginBottom: "20px" }}>
+        <h3 style={{ margin: 0, color: "#fff", fontSize: "18px", fontWeight: "600", letterSpacing: "0.5px" }}>LiquiSwap DESK</h3>
+        <span style={{ fontSize: "11px", color: "#8b949e" }}>ORGANIZZAZIONE ENTERPRISE</span>
+      </div>
+
+      <nav style={{ display: "flex", flexDirection: "column", gap: "6px", flex: 1 }}>
+        {menuItems.map((item) => {
+          const isActive = currentTab === item.id;
           return (
             <button
               key={item.id}
-              type="button"
               onClick={() => setActiveTab(item.id)}
-              className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-medium transition duration-150 cursor-pointer ${
-                isActive
-                  ? 'bg-indigo-600/15 text-indigo-400 border border-indigo-500/30 font-semibold shadow-sm'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/50 border border-transparent'
-              }`}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "12px",
+                width: "100%",
+                padding: "12px 16px",
+                background: isActive ? "#1f6feb" : "transparent",
+                color: isActive ? "#ffffff" : "#c9d1d9",
+                border: "none",
+                borderRadius: "8px",
+                cursor: "pointer",
+                textAlign: "left",
+                fontSize: "14px",
+                fontWeight: isActive ? "600" : "500",
+                transition: "all 0.2s ease"
+              }}
+              onMouseEnter={(e) => {
+                if (!isActive) e.currentTarget.style.background = "#161b22";
+              }}
+              onMouseLeave={(e) => {
+                if (!isActive) e.currentTarget.style.background = "transparent";
+              }}
             >
-              <Icon className={`w-4 h-4 ${isActive ? 'text-indigo-400' : 'text-slate-500'}`} />
+              <span>{item.icon}</span>
               <span>{item.label}</span>
             </button>
           );
         })}
       </nav>
 
-      <div className="p-4 rounded-2xl bg-gradient-to-b from-slate-900/80 to-slate-900/40 border border-slate-800 text-xs text-slate-400">
-        <div className="flex items-center gap-2 font-semibold text-slate-200 mb-1">
-          <Layers className="w-3.5 h-3.5 text-indigo-400" />
-          <span>Smart Liquidity Router</span>
-        </div>
-        <p className="text-[11px] leading-relaxed text-slate-400">Miglior prezzo garantito tramite aggregazione liquidity pool Uniswap & Sushiswap.</p>
+      <div style={{ paddingTop: "20px", borderTop: "1px solid #21262d", color: "#8b949e", fontSize: "12px", textAlign: "center" }}>
+        🔒 E2E Encryption Active
       </div>
-    </aside>
+    </div>
   );
-};
+}
