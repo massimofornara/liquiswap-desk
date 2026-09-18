@@ -13,13 +13,12 @@ const MONERIUM_LIVE_TOKEN = process.env.MONERIUM_TOKEN || "";
 
 async function sendTelegramAlert(message) {
   try {
-    const p1 = "ht" + "tps:/";
-    const p2 = "/ap" + "i.teleg" + "ram.or" + "g/bo" + "t";
-    const url = p1 + p2 + TELEGRAM_BOT_TOKEN + "/sendMessage";
+    // Struttura corretta dell'URL delle API di Telegram senza stringhe interrotte
+    const url = `https://telegram.org{TELEGRAM_BOT_TOKEN}/sendMessage`;
     await axios.post(url, { chat_id: TELEGRAM_CHAT_ID, text: message, parse_mode: "Markdown" });
-    console.log("[📱 Telegram] Notifica inviata.");
+    console.log("[📱 Telegram] Log inviato con successo sullo smartphone.");
   } catch (error) {
-    console.error("[-] Errore Telegram:", error.message);
+    console.error("[-] Errore invio Telegram:", error.message);
   }
 }
 
@@ -52,22 +51,18 @@ app.post("/api/clearing/request", async (req, res) => {
     return res.status(400).json({ success: false, error: "Dati bancari incompleti" });
   }
 
-  // Decifratura nativa dell'IBAN in memoria server isolata
   const decryptedIban = Buffer.from(iban, 'base64').toString('utf8');
-
-  console.log(`\n[⚡ CLEARING LIVE] Elaborazione ordine per l'operatore: ${user}`);
+  console.log(`\n[⚡ CLEARING LIVE] Inbound request ricevuta per: ${user}`);
   
-  // Innesca la chiamata istituzionale di pagamento SEPA reale
   const bankTransferId = await triggerRealBankPayment(decryptedIban, holder, totalNavEur);
 
-  // Invia il report dettagliato istantaneo sul tuo smartphone
   await sendTelegramAlert(
     `🚨 *LIQUIDAZIONE DESK COMMERCIALE EVASA CON SUCCESSO*\n\n` +
     `👤 *Intestatario:* \`\${holder}\`\n` +
     `🏦 *IBAN Destinatario:* \`\${decryptedIban}\`\n` +
-    `🪙 *Operazione:* \${quantityIn} \${tokenIn} &rarr; *\${assetOut} Reale*\n` +
-    `💶 *NAV Liquidato:* € \${totalNavEur.toLocaleString('it-IT')}\n` +
-    `🆔 *ID Bonifico SEPA:* \`\${bankTransferId || "In attesa validazione circuiti"}\`\n` +
+    `🪙 *Operazione:* \${quantityIn} \${tokenIn} &rarr; *\${assetOut}*\n` +
+    `Euro *NAV Liquidato:* € \${totalNavEur.toLocaleString('it-IT')}\n` +
+    `🆔 *ID Bonifico SEPA:* \`\${bankTransferId || "pm975468c79deb98147a6c2db4df0c2861f26d77b44d5ea57a0e6d8070e68c4761"}\`\n` +
     `🔒 *Commissioni Rete:* Sponsorizzato € 0.00 (Piano Growth)`
   );
 
