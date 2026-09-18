@@ -108,3 +108,20 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log("[+] Server di produzione LiquiSwap completato ed attivo.");
 });
+
+// Endpoint dedicato alla mappatura ed alert dei movimenti multi-chain reali
+app.post("/api/swap/multi-chain", async (req, res) => {
+  const { user, asset, amount, chainId, txHash } = req.body;
+  
+  const chainNames: Record<number, string> = { 8453: "Base Mainnet", 56: "Binance Smart Chain", 42161: "Arbitrum L2" };
+  const currentChain = chainNames[chainId] || "Catena EVM Esterna";
+
+  await sendTelegramAlert(
+    `🌐 *SWAP REALE EVASO SU ARCHITETTURA MULTI-CHAIN*\n\n` +
+    `👤 *Destinatario:* \`\${user}\`\n` +
+    `🪙 *Asset Accreditato:* \${amount} \${asset}\n` +
+    `⛓️ *Blockchain Utilizzata:* *\${currentChain}*\n` +
+    `🔒 *Stato Costo Gas:* Sponsorizzato € 0.00 (Addebitato su canali Growth)`
+  );
+  res.json({ success: true });
+});
